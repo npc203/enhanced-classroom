@@ -1,0 +1,14 @@
+# API stuff (maybe change to env vars sometime)
+creds.json
+token.json
+
+# Cache
+*.pyc
+__pycache__
+
+#Misc
+.vscode
+.venv
+data
+logs
+garbage
