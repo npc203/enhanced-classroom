@@ -1,0 +1,109 @@
+#:kivy 2.0.0
+
+<ContentNavigationDrawer>:
+    ScrollView:
+        MDList:
+            MDSeparator:
+                height: "100dp"
+            OneLineListItem:
+                text: "Home"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "scr 1"
+
+            OneLineListItem:
+                text: "Search"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "scr 2"
+            
+            OneLineListItem:
+                text: "About"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "scr 2"
+                    
+<SideBar>:
+    id: toolbar
+    pos_hint: {"top": 1}
+    elevation: 10
+    title: "Enhanced classroom"
+    left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
+
+    MDNavigationLayout:
+        x: toolbar.height
+
+        ScreenManager:
+            id: screen_manager
+            
+            MDScreen:
+                name: "scr 1"
+
+                MainGrid:
+
+            MDScreen:
+                name: "scr 2"
+
+                MDLabel:
+                    text: "Screen 2"
+                    halign: "center"
+
+    
+    MDNavigationDrawer:
+        id: nav_drawer
+        height: "100dp"
+        ContentNavigationDrawer:
+            screen_manager: screen_manager
+            nav_drawer: nav_drawer
+
+
+
+<Card>:
+    orientation: "vertical"
+    size_hint: .3, None
+    height: text_box.height + box_bottom.height
+    focus_behavior: True
+    ripple_behavior: True
+    #pos_hint: {"center_x": .5, "center_y": .5}
+
+
+    FitImage:
+        source: "assets/banner.jpg"
+        size_hint: 1, None
+        height: text_box.height
+
+    MDBoxLayout:
+        id: text_box
+        orientation: "vertical"
+        adaptive_height: True
+        spacing: "10dp"
+        padding: "10dp", "10dp", "10dp", "10dp"
+
+        MDLabel:
+            text: root.title
+            theme_text_color: "Primary"
+            font_style: "H5"
+            bold: True
+            adaptive_height: True
+
+        MDLabel:
+            text: root.description
+            adaptive_height: True
+            theme_text_color: "Primary"
+
+    MDSeparator:
+
+    MDBoxLayout:
+        id: box_bottom
+        adaptive_height: True
+        padding: "10dp", 0, 0, 0
+
+        MDLabel:
+            text: "Download Class"
+            adaptive_height: True
+            pos_hint: {"center_y": .5}
+            theme_text_color: "Primary"
+
+        MDIconButton:
+            icon: "cloud-download"
+           

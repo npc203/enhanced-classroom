@@ -108,6 +108,6 @@ class Client(Auth, Downloader, metaclass=Singleton):
 if __name__ == "__main__":
     client = Client()
     # courses = client.load_courses()
-
-    print(client.crawl("topics", "topic", 328146111353))
+    print(client.load_courses(1))
+    # print(client.crawl("topics", "topic", 328146111353))
     # client.download("AAA", "AAA")
