@@ -22,7 +22,6 @@ class Client(Auth, Downloader, metaclass=Singleton):
 
         # Initialize auth
         super().__init__()
-        self.auth()
 
         # Initialize downloader
         self.data_path = Path(os.path.abspath(__file__)).parent / DOWNLOAD_PATH
@@ -33,13 +32,6 @@ class Client(Auth, Downloader, metaclass=Singleton):
         self.db.table_class = SmartCacheTable
         self.course_db = self.db.table("courses")
 
-        # build the services
-        if self.creds:
-            self.build("classroom", "v1", self.creds)
-            self.build("drive", "v3", self.creds)
-        else:
-            raise RuntimeError("Can't build services")
-
         # Metadata Vars
 
     def load_courses(self, limit=None) -> List:
@@ -48,8 +40,8 @@ class Client(Auth, Downloader, metaclass=Singleton):
         query = Query()
         for resp in self.crawl_full(crawler, limit=limit):
             for course in resp["courses"]:
-                self.course_db.upsert(course, query.name == course["id"])
-        return self.course_db.all()
+                self.course_db.upsert(course, query.id == course["id"])
+        # return self.course_db.all()
 
     def build(self, service: str, version: str, creds: Credentials) -> Resource:
         built = build(service, version, credentials=creds)
@@ -59,8 +51,8 @@ class Client(Auth, Downloader, metaclass=Singleton):
     # Maybe not make this a generator
     @staticmethod
     def crawl_full(crawler: Any, limit=None, pageSize=100, **kwargs) -> List[Dict[str, Any]]:
+        print("mooo")
         page_token = None
-        print(kwargs)
         if limit:
             times = limit // 100
             last_remainder = limit % 100
@@ -69,20 +61,23 @@ class Client(Auth, Downloader, metaclass=Singleton):
                     pageToken=page_token, pageSize=pageSize, **kwargs
                 ).execute()
                 page_token = response.get("nextPageToken", None)
+                yield response
                 if not page_token:
                     break
-                yield response
+
             # Last page
             yield crawler.list(pageToken=page_token, pageSize=last_remainder, **kwargs).execute()
         else:
+            print("mooo1")
             while True:
+                print("mooo2")
                 response = crawler.list(
                     pageToken=page_token, pageSize=pageSize, **kwargs
                 ).execute()
                 page_token = response.get("nextPageToken", None)
+                yield response
                 if not page_token:
                     break
-                yield response
 
     def crawl(
         self, to_crawl: str, resp_obj: str, courseId: int, limit: int = None, **kwargs
@@ -108,6 +103,7 @@ class Client(Auth, Downloader, metaclass=Singleton):
 if __name__ == "__main__":
     client = Client()
     # courses = client.load_courses()
-    print(client.load_courses(1))
+    # print(client.load_courses())
+    # print(len(client.course_db))
     # print(client.crawl("topics", "topic", 328146111353))
     # client.download("AAA", "AAA")

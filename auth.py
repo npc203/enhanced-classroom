@@ -53,4 +53,11 @@ class Auth:
             with open("token.json", "w") as token:
                 token.write(self.creds.to_json())
 
+        # build the services
+        if self.creds:
+            self.build("classroom", "v1", self.creds)
+            self.build("drive", "v3", self.creds)
+        else:
+            raise RuntimeError("Can't build services")
+
         return self.creds

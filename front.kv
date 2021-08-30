@@ -24,31 +24,19 @@
                     root.screen_manager.current = "scr 2"
                     
 <SideBar>:
-    id: toolbar
-    pos_hint: {"top": 1}
-    elevation: 10
-    title: "Enhanced classroom"
-    left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
+    MDToolbar:
+        id: toolbar
+        pos_hint: {"top": 1}
+        elevation: 10
+        title: "Enhanced classroom"
+        left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
 
     MDNavigationLayout:
         x: toolbar.height
 
         ScreenManager:
             id: screen_manager
-            
-            MDScreen:
-                name: "scr 1"
-
-                MainGrid:
-
-            MDScreen:
-                name: "scr 2"
-
-                MDLabel:
-                    text: "Screen 2"
-                    halign: "center"
-
-    
+                
     MDNavigationDrawer:
         id: nav_drawer
         height: "100dp"
@@ -56,17 +44,29 @@
             screen_manager: screen_manager
             nav_drawer: nav_drawer
 
+<MainGrid>:
+    grid: grid
+    effect_cls: "DampedScrollEffect"
+    pos_hint: {"center_y": 0.38}
+    GridLayout:
+        id: grid
+        size_hint_y: None
+        height: self.minimum_height
+        width: self.minimum_width
+        cols: 3
+        spacing: 10, 10
+        padding: 10
 
 
 <Card>:
     orientation: "vertical"
     size_hint: .3, None
-    height: text_box.height + box_bottom.height
+    elevation: 10
+    height: text_box.height*2+ box_bottom.height
     focus_behavior: True
     ripple_behavior: True
-    #pos_hint: {"center_x": .5, "center_y": .5}
 
-
+    
     FitImage:
         source: "assets/banner.jpg"
         size_hint: 1, None
@@ -76,6 +76,7 @@
         id: text_box
         orientation: "vertical"
         adaptive_height: True
+        height: "100dp"
         spacing: "10dp"
         padding: "10dp", "10dp", "10dp", "10dp"
 
