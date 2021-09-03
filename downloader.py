@@ -1,11 +1,15 @@
 import asyncio
 import io
 import logging
+import os
+from pathlib import Path
 
-import aiofiles
-import aiohttp
 from googleapiclient.http import MediaIoBaseDownload
+from googleapiclient.errors import HttpError
+from tinydb import TinyDB
+from tinydb_smartcache import SmartCacheTable
 
+from consts import DOWNLOAD_PATH
 from utils import Singleton
 
 logger = logging.getLogger("clsroom.downloader")
@@ -23,32 +27,52 @@ def chunks(lst, n):
 
 
 class Downloader(metaclass=Singleton):
+    # Initialize downloader
+    data_path = Path(os.path.abspath(__file__)).parent / DOWNLOAD_PATH
+    dl_thread = asyncio.get_event_loop()
+
+    # Initialize tinydb
+    db = TinyDB(data_path / "db.json")
+    db.table_class = SmartCacheTable
+    course_db = db.table("courses")
+    topic_db = db.table("topics")
+    mat_db = db.table("materials")
+
     def download_batch(self, id_path: dict):
         """Download from file_id and store in the given path"""
         tasks = []
 
-        # Spliting into chunks
-        for chunk in chunks(id_path.items(), 100):
+        # Spliting into 10 file parallel downloads
+        for chunk in chunks(list(id_path.items()), 10):
             for file_id, path in chunk:
-                tasks.append(self._worker(file_id, path))
+                tasks.append(self.__worker_downloader(file_id, path))
             self.dl_thread.run_until_complete(asyncio.gather(*tasks))
 
-    async def _worker(self, file_id, path):
+    async def __worker_downloader(self, file_id, path):
         """Download from file_id and store in the given path"""
-        request = self.services["drive"].files().get_media(fileId=file_id)
+        try:
+            request = self.services["drive"].files().get_media(fileId=file_id)
+        except HttpError:
+            # Export as pdf if it's in drive
+            request = (
+                self.services["drive"]
+                .files()
+                .export_media(fileId=file_id, mimeType="application/pdf")
+            )
+            logger.warning(f"File {file_id} : {path} is not in drive, exporting as pdf")
 
-        fh = io.BytesIO()
-        downloader = MediaIoBaseDownload(fh, request)
-        done = False
-        while done is False:
-            status, done = downloader.next_chunk()
-            logger.info("Download %d%%." % int(status.progress() * 100))
-
-        # Is this even worth it?
-        async with aiofiles.open(path, mode="wb") as f:
-            await f.write(fh.getbuffer())
-
-        logger.info("Downloaded {}".format(path))
+        # Make path if it didn't exist
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        try:
+            fh = io.FileIO(path, "wb")
+            downloader = MediaIoBaseDownload(fh, request)
+            done = False
+            while done is False:
+                status, done = downloader.next_chunk()
+                logger.info(f"Downloaded {path} : {status.progress() * 100:.2f}")
+            logger.info("Completed {}".format(path))
+        except Exception as e:
+            logger.error(f"Error downloading {path} : {e}")
 
     # @staticmethod
     # async def fetch(session: aiohttp.ClientSession, url: str, path: str):

@@ -3,23 +3,23 @@ from kivy.uix.boxlayout import BoxLayout
 
 kivy.require("2.0.0")
 
-from kivy.lang import Builder
-from kivymd.app import MDApp
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.scrollview import ScrollView
-from kivy.properties import ObjectProperty, StringProperty
-
-from kivymd.uix.label import MDLabel
-from kivymd.uix.card import MDCard
-from kivymd.uix.screen import MDScreen
-from kivymd.uix.gridlayout import GridLayout
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.toolbar import MDToolbar
-
-from client import Client
 import threading
 import time
 from functools import partial
+
+from client import Client
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.scrollview import ScrollView
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.card import MDCard
+from kivymd.uix.gridlayout import GridLayout
+from kivymd.uix.label import MDLabel
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.toolbar import MDToolbar
+
 
 # TODO responsive grid layout
 class Card(MDCard):
