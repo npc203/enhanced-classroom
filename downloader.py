@@ -43,10 +43,10 @@ class Downloader(metaclass=Singleton):
         tasks = []
 
         # Spliting into 10 file parallel downloads
-        for chunk in chunks(list(id_path.items()), 10):
-            for file_id, path in chunk:
-                tasks.append(self.__worker_downloader(file_id, path))
-            self.dl_thread.run_until_complete(asyncio.gather(*tasks))
+        # for chunk in chunks(, 10):
+        for file_id, path in list(id_path.items()):
+            tasks.append(self.__worker_downloader(file_id, path))
+        self.dl_thread.run_until_complete(asyncio.gather(*tasks))
 
     async def __worker_downloader(self, file_id, path):
         """Download from file_id and store in the given path"""

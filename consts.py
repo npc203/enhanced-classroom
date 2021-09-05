@@ -1,4 +1,5 @@
 DOWNLOAD_PATH = "./data/"
+INDEX_PATH = "./data/.indexed/"
 FILE_TYPES = [
     "application/vnd.ms-powerpoint",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",

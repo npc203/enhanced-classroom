@@ -12,6 +12,7 @@ from googleapiclient.discovery import Resource, build
 from utils import Singleton
 from tinydb import Query, where
 import os
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 
@@ -164,16 +165,35 @@ class Client(Auth, Downloader, Search, metaclass=Singleton):
 
 if __name__ == "__main__":
     client = Client()
-    client.auth()
+
+    # BLOBIFY
+    # for folder in Path("data").iterdir():
+    #     if folder.is_dir() and not folder.name.startswith("."):
+    #         logging.info(f"Blobing {folder}")
+    #         client.convert(str(folder))
+
+    # INDEX
+    # for course in client.course_db.all():
+    #     client.index_course(course["id"])
+
+    for i in client.search("FOL"):
+        print(i.values(), sep="\n")
+
+    # client.auth()
     # print(client.services["classroom"].courses().get(id=123).execute())
-    courses = client.course_db.all()
+    # courses = client.course_db.all()
     # a = client.crawl(
     #     "courseWorkMaterials", "courseWorkMaterial", 328146111353, pageSize=10, limit=10
     # )
     # print(a)
-    for i in courses:
-        if "III" in i["name"] + " | " + i.get("section", "None"):
-            client.download_course(i["id"])
+    # for i in courses:
+    #     if "III" in i["name"] + " | " + i.get("section", "None"):
+    #         client.download_course(i["id"])
+    # client.convert(
+    #     [
+    #         "data/III CSE - B (1B & 2B) - Microcontrollers and Embedded Systems Lab - Dr.D.Selvakumar"
+    #     ]
+    # )
     # a = {"", "data/test/owo.pdf"}
     # print(client.course_db.search(where("id") == "328146111353"))
 
