@@ -25,7 +25,7 @@ class Client(Auth, Downloader, Search, metaclass=Singleton):
         super().__init__()
 
         # Metadata Vars
-        self.video_extensions = [".mp4", ".webm", ".ogv", ".ogg", ".mkv", ".flv", ".m4v"]
+        self.video_extensions = [".mp4", ".webm", ".ogv", ".ogg", ".mkv", ".flv", ".m4v", ".wmv"]
 
     def load_courses(self, limit=None) -> List:
         """Load courses,If limit None, then gets every course"""
@@ -176,7 +176,9 @@ if __name__ == "__main__":
     # for course in client.course_db.all():
     #     client.index_course(course["id"])
 
-    for i in client.search("FOL"):
+    # client.index_course("364523736415")
+
+    for i in client.search("pda to grammar"):
         print(i.values(), sep="\n")
 
     # client.auth()

@@ -18,12 +18,17 @@ f_handler = logging.FileHandler("./logs/auth.log")
 logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 
-SCOPES = [
+# Legacy used scopes, this used to cause the coursework.me failing a lot even if they aren't expired, check logs and sort it out later
+STRICT_SCOPES = [
     "https://www.googleapis.com/auth/classroom.courses.readonly",
     "https://www.googleapis.com/auth/classroom.coursework.me.readonly",
     "https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly",
     "https://www.googleapis.com/auth/classroom.topics.readonly",
     "https://www.googleapis.com/auth/drive.readonly",
+]
+
+SCOPES = [
+    "https://www.googleapis.com/auth/drive.readonly"
 ]
 
 
