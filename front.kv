@@ -9,19 +9,19 @@
                 text: "Home"
                 on_press:
                     root.nav_drawer.set_state("close")
-                    root.screen_manager.current = "scr 1"
+                    root.screen_manager.current = "Classroom"
 
             OneLineListItem:
                 text: "Search"
                 on_press:
                     root.nav_drawer.set_state("close")
-                    root.screen_manager.current = "scr 2"
+                    root.screen_manager.current = "Search"
             
             OneLineListItem:
                 text: "About"
                 on_press:
                     root.nav_drawer.set_state("close")
-                    root.screen_manager.current = "scr 2"
+                    root.screen_manager.current = "Search"
                     
 <SideBar>:
     MDToolbar:
@@ -36,13 +36,44 @@
 
         ScreenManager:
             id: screen_manager
-                
+            
+            SearchScreen:
+                         
     MDNavigationDrawer:
         id: nav_drawer
         height: "100dp"
         ContentNavigationDrawer:
             screen_manager: screen_manager
             nav_drawer: nav_drawer
+
+<SearchScreen>:
+    search_text: 
+    id: search_screen
+    name: "Search"
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: "50dp"
+
+        BoxLayout:
+            size_hint: 1,None
+            
+            MDTextField:
+                id: search_text
+                hint_text: "Search"
+                multiline: False
+                on_text_validate: search_screen.search()
+            
+            MDIconButton:
+                icon: "book-search"
+                on_release: search_screen.search()
+
+        ScrollView:
+            MDList:
+                id: search_list              
+
+<ItemTile>:
+    on_release: root.open_file(self.text+"/"+self.secondary_text)
 
 <MainGrid>:
     grid: grid

@@ -4,9 +4,10 @@ import logging
 import os
 from pathlib import Path
 
-from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseDownload
 from tinydb import TinyDB
+from tinydb.queries import Query
 from tinydb_smartcache import SmartCacheTable
 
 from consts import DOWNLOAD_PATH
@@ -73,6 +74,32 @@ class Downloader(metaclass=Singleton):
             logger.info("Completed {}".format(path))
         except Exception as e:
             logger.error(f"Error downloading {path} : {e}")
+
+    def redownload_course(self, courseId: str):
+        """Helper to download missing files from db"""
+        work_materials = self.mat_db.search(Query().courseId == courseId)
+        if not (course := self.course_db.get(Query().id == str(courseId))):
+            logger.error("Course Not Found")
+            return
+        course_name = course.get("name", "None") + " - " + course.get("section", "None")
+        id_path = {}
+
+        for thing in work_materials:
+            if "materials" in thing:
+                for material in thing["materials"]:
+                    if "driveFile" in material:
+                        file = material["driveFile"]["driveFile"]
+                        # We don't need videos >_>
+                        if not any(
+                            file["title"].endswith(i) for i in self.video_extensions
+                        ):
+                            file_path = f"data/{course_name}/{file['title']}"
+                            if not os.path.exists(file_path):
+                                id_path[file["id"]] = file_path
+
+        # Call only if we have things to download
+        if id_path:
+            self.download_batch(id_path)
 
     # @staticmethod
     # async def fetch(session: aiohttp.ClientSession, url: str, path: str):

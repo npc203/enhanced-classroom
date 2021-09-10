@@ -1,19 +1,20 @@
-from tika.tika import parse
-from consts import DOWNLOAD_PATH
+import asyncio
 import logging
 import os
-from typing import List
-from tinydb import where
-
-from whoosh import index
-from whoosh.writing import IndexWriter
-from whoosh.qparser import QueryParser
-from whoosh.fields import TEXT, ID, Schema
-from tika import parser
-from pathlib import Path
-import asyncio
 import re
+from pathlib import Path
+from typing import List
+
 import bs4
+from tika import parser
+from tika.tika import parse
+from tinydb import where
+from whoosh import index
+from whoosh.fields import ID, TEXT, Schema
+from whoosh.qparser import QueryParser
+from whoosh.writing import IndexWriter
+
+from consts import DOWNLOAD_PATH
 
 logger = logging.getLogger("clsroom.search")
 c_handler = logging.StreamHandler()
@@ -74,7 +75,9 @@ class Search:
                         )
                     logging.info(f"Indexed {metadata['title']}")
             else:
-                logging.warning(f"Invalid response from tika server, code: {parsed['status']}")
+                logging.warning(
+                    f"Invalid response from tika server, code: {parsed['status']}"
+                )
         except Exception:
             logging.warning(f"Failed to index {metadata['title']}", exc_info=True)
 
@@ -95,7 +98,10 @@ class Search:
                                 file = material["driveFile"]["driveFile"]
 
                                 # NO videos
-                                if any(file["title"].endswith(i) for i in self.video_extensions):
+                                if any(
+                                    file["title"].endswith(i)
+                                    for i in self.video_extensions
+                                ):
                                     continue
 
                                 # Indexing the file
@@ -115,6 +121,7 @@ class Search:
 
     def remove_from_index(self, fileId: str):
         """Remove from index"""
+        # TODO
         self.ix.delete_by_term("fileId", fileId)
         self.ix.commit()
         logging.info(f"Removed {fileId} from index")

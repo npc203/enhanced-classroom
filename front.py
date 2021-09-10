@@ -3,11 +3,13 @@ from kivy.uix.boxlayout import BoxLayout
 
 kivy.require("2.0.0")
 
+import os
+import platform
+import subprocess
 import threading
 import time
 from functools import partial
 
-from client import Client
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -17,8 +19,12 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 from kivymd.uix.gridlayout import GridLayout
 from kivymd.uix.label import MDLabel
+from kivymd.uix.list import ThreeLineListItem
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.toolbar import MDToolbar
+from tinydb import where
+
+from client import Client
 
 
 # TODO responsive grid layout
@@ -52,11 +58,43 @@ class SideBar(MDScreen):
     def __init__(self, **kwargs):
         super(SideBar, self).__init__(**kwargs)
         self.ids.screen_manager.add_widget(ClsRoomScreen({}))
+        self.ids.screen_manager.current = "Search"
+
+
+class ItemTile(ThreeLineListItem):
+    def open_file(self, path):
+        filepath = client.data_path / path
+        if platform.system() == "Darwin":  # macOS
+            subprocess.call(("open", filepath))
+        elif platform.system() == "Windows":  # Windows
+            os.startfile(filepath)
+        else:  # linux variants
+            subprocess.call(("xdg-open", filepath))
+
+
+class SearchScreen(MDScreen):
+    def search(self):
+        # print(*[i.values() for i in client.search(self.ids["search_text"].text)], sep="\n")
+        self.ids.search_list.clear_widgets()
+        for i in client.search(self.ids["search_text"].text):
+            vals = i.values()
+            if course := client.course_db.get(where("id") == vals[0]):
+                course_name = course["name"] + " - " + course.get("section", "")
+            else:
+                course_name = "Course Not Found"
+            self.ids.search_list.add_widget(
+                ItemTile(
+                    text=course_name,
+                    secondary_text=vals[3],
+                    tertiary_text=f"PageNo: {vals[2]}",
+                )
+            )
 
 
 class ClsRoomScreen(MDScreen):
     def __init__(self, data, **kw):
         super().__init__(**kw)
+        self.name = "Classroom"
         self.add_widget(MainGrid(data))
 
 
